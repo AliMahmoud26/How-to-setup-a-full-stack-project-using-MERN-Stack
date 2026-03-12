@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import axios from "axios";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    try {
+      const res = await axios.post("/api/users/register", {
+        email,
+        password,
+      });
+      console.log(res.data);
+      setMessage(res.data.message);
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Something went wrong");
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-lg shadow-md max-w-sm"
+      >
+        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          className="border p-2 mb-3 rounded w-full"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          className="border p-2 mb-3 rounded w-full"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button className="w-full bg-blue-600 text-white p-2 rounded cursor-pointer hover:bg-blue-700">
+          Register
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+        {message && <p className="mt-3 text-gray-900">{message}</p>}
+      </form>
+    </div>
+  );
 }
 
-export default App
+export default App;

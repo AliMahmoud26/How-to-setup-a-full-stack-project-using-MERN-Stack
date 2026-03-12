@@ -8,13 +8,13 @@ const router = express.Router();
 router.post('/register', async(req, res) => {
     const {email, password} = req.body;
     if (!email || !password) {
-        res.status(400).json({message: 'Please provide all the fields'});
+        return res.status(400).json({message: 'Please provide all the fields'});
     }
 
     try {
         const userExists = await User.findOne({email});
         if (userExists) {
-            return res.status(400).json({message: 'User already exists'});
+            return res.status(409).json({message: 'User already exists'});
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -29,5 +29,13 @@ router.post('/register', async(req, res) => {
     }
 })
 
+router.get("/users", async(req, res) => {
+    try {
+        const users = await User.find().select("-password");
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({message: "Server error"});
+    }
+})
 
 export default router;
